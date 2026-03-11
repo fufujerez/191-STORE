@@ -1,0 +1,91 @@
+local Player = game.Players.LocalPlayer
+local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+
+-- Bersihkan UI lama
+if CoreGui:FindFirstChild("OneNineOneMenu") then CoreGui.OneNineOneMenu:Destroy() end
+
+-- 1. Container Utama
+local ScreenGui = Instance.new("ScreenGui", CoreGui)
+ScreenGui.Name = "OneNineOneMenu"
+
+-- 2. Background Frame (DIPERPENDEK ukurannya ke 220)
+local MainFrame = Instance.new("ImageLabel", ScreenGui)
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 180, 0, 240) -- Ukuran lebih proporsional
+MainFrame.Position = UDim2.new(0.5, -90, 0.5, -120)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.Image = "rbxassetid://YOUR_IMAGE_ID_HERE" -- Ganti dengan ID Decal kamu
+MainFrame.ScaleType = Enum.ScaleType.Crop
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+-- Overlay Gelap
+local Overlay = Instance.new("Frame", MainFrame)
+Overlay.Size = UDim2.new(1, 0, 1, 0)
+Overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+Overlay.BackgroundTransparency = 0.5
+Overlay.BorderSizePixel = 0
+
+-- 3. Judul "191" (Lebih rapat)
+local Title = Instance.new("TextLabel", MainFrame)
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "191 STORE"
+Title.Font = Enum.Font.GothamBold
+Title.TextColor3 = Color3.new(1, 1, 1)
+Title.TextSize = 20
+Title.BackgroundTransparency = 1
+Title.ZIndex = 2
+
+-- 4. Tombol & Fungsi
+local waypoint = nil
+local function blink()
+    local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if root then root.CFrame = root.CFrame * CFrame.new(0, 0, -5) end
+end
+
+-- Keybind Q untuk Blink
+UIS.InputBegan:Connect(function(input, chat)
+    if not chat and input.KeyCode == Enum.KeyCode.Q then blink() end
+end)
+
+local function createBtn(text, func)
+    local b = Instance.new("TextButton", MainFrame)
+    b.Size = UDim2.new(0.9, 0, 0, 30) -- Tombol lebih tipis
+    b.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+    b.BackgroundTransparency = 0.2
+    b.Text = text
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.Gotham
+    b.TextSize = 11
+    b.ZIndex = 2
+    
+    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    b.MouseButton1Click:Connect(func)
+end
+
+local Layout = Instance.new("UIListLayout", MainFrame)
+Layout.Padding = UDim.new(0, 5) -- Jarak antar tombol lebih rapat
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+Instance.new("UIPadding", MainFrame).PaddingTop = UDim.new(0, 40)
+
+-- 5. Daftar Tombol
+createBtn("SET WAYPOINT", function()
+    local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if root then waypoint = root.Position end
+end)
+
+createBtn("TELEPORT", function()
+    local root = Player.Character and Player.Character:FindFirstChild("HumanoidRootPart")
+    if root and waypoint then root.CFrame = CFrame.new(waypoint + Vector3.new(0, 2, 0)) end
+end)
+
+createBtn("BLINK (R)", blink)
+
+createBtn("SPEED (20)", function()
+    if Player.Character:FindFirstChild("Humanoid") then Player.Character.Humanoid.WalkSpeed = 20 end
+end)
+
+createBtn("CLOSE", function() ScreenGui:Destroy() end)
